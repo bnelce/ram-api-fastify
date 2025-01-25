@@ -7,14 +7,378 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id           String   @id @default(uuid())
-  name         String?
-  email        String   @unique
-  passwordHash String?  @map("password_hash")
-  avatarUrl    String?  @map("avatar_url")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model aluno {
+  id_aluno                                       Int                @id @default(autoincrement())
+  nome_aluno                                     String             @db.VarChar(80)
+  logradouro                                     String             @db.VarChar(50)
+  colegio_aluno                                  String?            @db.VarChar(45)
+  serie_ano                                      Int?
+  nascimento                                     DateTime?          @db.Date
+  data_matricula                                 DateTime?          @db.Date
+  modalidade                                     Int
+  responsavel                                    Int
+  cpf_responsavel                                String?            @db.VarChar(11)
+  usuario_cadastro                               String?            @db.VarChar(200)
+  data_cadastro                                  DateTime?          @db.Date
+  bairro                                         String?            @db.VarChar(50)
+  cidade                                         String?            @db.VarChar(50)
+  numero                                         String?            @db.VarChar(20)
+  uf                                             String?            @db.VarChar(2)
+  cep                                            String?            @db.VarChar(8)
+  mensalidade                                    Decimal?           @db.Decimal(10, 2)
+  ativo                                          Int?
+  sede_aluno                                     Int
+  modalidade_aluno_modalidadeTomodalidade        modalidade         @relation("aluno_modalidadeTomodalidade", fields: [modalidade], references: [id_modalidade], onDelete: NoAction, onUpdate: NoAction, map: "modalidade_fk")
+  responsavel_aluno_responsavelToresponsavel     responsavel        @relation("aluno_responsavelToresponsavel", fields: [responsavel], references: [id_responsavel], onDelete: NoAction, onUpdate: NoAction, map: "responsavel_fk")
+  aula_aluno_aula_aluno_alunoToaluno             aula_aluno[]       @relation("aula_aluno_alunoToaluno")
+  frequencia_aluno_frequencia_aluno_alunoToaluno frequencia_aluno[] @relation("frequencia_aluno_alunoToaluno")
+  notas_alunos_notas_alunos_alunoToaluno         notas_alunos[]     @relation("notas_alunos_alunoToaluno")
 
-  @@map("users")
+  @@index([modalidade], map: "modalidade_fk")
+  @@index([responsavel], map: "responsavel_fk")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model aula {
+  id_aula                                                              Int                            @id @default(autoincrement())
+  descricao                                                            String?                        @db.VarChar(130)
+  sala                                                                 Int?
+  data_aula                                                            DateTime?                      @db.Date
+  data_cadastro                                                        DateTime?                      @db.Date
+  usuario_cadastro                                                     String?                        @db.VarChar(200)
+  modalidade                                                           Int
+  valor_responsavel                                                    Decimal                        @db.Decimal(10, 2)
+  valor_professor                                                      Decimal                        @db.Decimal(10, 2)
+  disciplina                                                           Int
+  hora_aula_fim                                                        DateTime?                      @db.Time(0)
+  hora_aula_inicio                                                     DateTime?                      @db.Time(0)
+  valor_total_responsavel                                              Decimal?                       @db.Decimal(10, 2)
+  valor_total_professor                                                Decimal?                       @db.Decimal(10, 2)
+  sede_aula                                                            Int?
+  disiciplina                                                          disiciplina                    @relation(fields: [disciplina], references: [id_disiciplina], onDelete: NoAction, onUpdate: NoAction, map: "fk_disciplina")
+  modalidade_aula_modalidadeTomodalidade                               modalidade                     @relation("aula_modalidadeTomodalidade", fields: [modalidade], references: [id_modalidade], onDelete: NoAction, onUpdate: NoAction, map: "fk_modalidade")
+  aula_aluno_aula_aluno_aulaToaula                                     aula_aluno[]                   @relation("aula_aluno_aulaToaula")
+  aula_professor_aula_professor_aulaToaula                             aula_professor[]               @relation("aula_professor_aulaToaula")
+  curso_preparatorio_relatorio_curso_preparatorio_relatorio_aulaToaula curso_preparatorio_relatorio[] @relation("curso_preparatorio_relatorio_aulaToaula")
+
+  @@index([disciplina], map: "fk_disciplina_idx")
+  @@index([modalidade], map: "fk_modalidade_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model aula_aluno {
+  id_aula_aluno                 Int       @id @default(autoincrement())
+  aula                          Int
+  aluno                         Int
+  professor_relatorio           String?   @db.VarChar(200)
+  data_relatorio                DateTime? @db.DateTime(0)
+  data_pagamento_resp           DateTime? @db.DateTime(0)
+  pergunta_1                    Int?
+  pergunta_2                    Int?
+  pergunta_3                    Int?
+  pergunta_3_coment             String?   @db.VarChar(300)
+  pergunta_4                    String?   @db.VarChar(1200)
+  pergunta_5                    Int?
+  pergunta_6                    String?   @db.VarChar(150)
+  pergunta_7                    String?   @db.VarChar(150)
+  pergunta_8                    String?   @db.VarChar(150)
+  pergunta_9                    Int?
+  pergunta_10                   String?   @db.VarChar(80)
+  pergunta_11                   String?   @db.VarChar(1200)
+  sugestoes                     String?   @db.VarChar(150)
+  valor_hora_aula               Decimal?  @db.Decimal(10, 2)
+  sede_aula_aluno               Int?
+  aluno_aula_aluno_alunoToaluno aluno     @relation("aula_aluno_alunoToaluno", fields: [aluno], references: [id_aluno], onDelete: NoAction, map: "aluno_fk2")
+  aula_aula_aluno_aulaToaula    aula      @relation("aula_aluno_aulaToaula", fields: [aula], references: [id_aula], onDelete: NoAction, map: "aula_fk2")
+
+  @@index([aluno], map: "aluno_fk2")
+  @@index([aula], map: "aula_fk2")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model aula_professor {
+  id_aula_professor                             Int       @id @default(autoincrement())
+  aula                                          Int
+  professor                                     Int
+  data_pagamento_prof                           DateTime? @db.DateTime(0)
+  sede_aula_professor                           Int?
+  aula_aula_professor_aulaToaula                aula      @relation("aula_professor_aulaToaula", fields: [aula], references: [id_aula], onDelete: NoAction, map: "aula_fk")
+  professor_aula_professor_professorToprofessor professor @relation("aula_professor_professorToprofessor", fields: [professor], references: [id_professor], onDelete: NoAction, map: "professor_fk2")
+
+  @@index([aula], map: "aula_fk")
+  @@index([professor], map: "professor_fk2")
+}
+
+model compra_responsavel {
+  id_compra        Int      @id @default(autoincrement())
+  id_responsavel   Int
+  cpf_responsavel  String   @db.VarChar(11)
+  valor_compra     Decimal  @db.Decimal(7, 2)
+  horas_compradas  Decimal  @db.Decimal(3, 1)
+  valor_hora       Decimal  @db.Decimal(5, 2)
+  saldo_anterior   Decimal? @db.Decimal(3, 1)
+  saldo_atual      Decimal? @db.Decimal(3, 1)
+  data_compra      DateTime @db.Date
+  usuario_cadastro String   @db.VarChar(200)
+  sede_responsavel Int
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model curso_preparatorio_relatorio {
+  id_curso_preparatorio_relatorio              Int       @id @default(autoincrement())
+  aula                                         Int
+  pergunta_1                                   String?   @db.VarChar(300)
+  pergunta_2                                   String?   @db.VarChar(300)
+  pergunta_3                                   String?   @db.VarChar(300)
+  pergunta_4                                   String?   @db.VarChar(500)
+  data_envio_relatorio                         DateTime? @db.Date
+  curso_prep_prof_relatorio                    Int?
+  sede_curso_preparatorio                      Int?
+  aula_curso_preparatorio_relatorio_aulaToaula aula      @relation("curso_preparatorio_relatorio_aulaToaula", fields: [aula], references: [id_aula], onDelete: NoAction, onUpdate: NoAction, map: "fk_aula_curso_preparatorio")
+
+  @@index([aula], map: "fk_aula_curso_preparatorio_idx")
+}
+
+model dias_semana {
+  id_dias_semana                                             Int                @id @default(autoincrement())
+  nome_dia_semana                                            String             @db.VarChar(45)
+  disponibilidade                                            disponibilidade[]
+  frequencia_aluno_frequencia_aluno_dias_semanaTodias_semana frequencia_aluno[] @relation("frequencia_aluno_dias_semanaTodias_semana")
+}
+
+model disiciplina {
+  id_disiciplina   Int            @id @default(autoincrement())
+  nome_disciplina  String         @db.VarChar(45)
+  usuario_cadastro String         @db.VarChar(200)
+  data_cadastro    DateTime       @db.Date
+  aula             aula[]
+  notas_alunos     notas_alunos[]
+}
+
+model disponibilidade {
+  id_disponibilidade                             Int         @id @default(autoincrement())
+  professor                                      Int
+  dia_semana                                     Int
+  hora_inicio                                    DateTime    @db.Time(0)
+  hora_fim                                       DateTime    @db.Time(0)
+  usuario_cadastro                               String?     @db.VarChar(200)
+  data_cadastro                                  DateTime?   @db.Date
+  dias_semana                                    dias_semana @relation(fields: [dia_semana], references: [id_dias_semana], onDelete: NoAction, onUpdate: NoAction, map: "dia_semana_fk")
+  professor_disponibilidade_professorToprofessor professor   @relation("disponibilidade_professorToprofessor", fields: [professor], references: [id_professor], onDelete: NoAction, onUpdate: NoAction, map: "professor_fk")
+
+  @@index([dia_semana], map: "dia_semana_fk")
+  @@index([professor], map: "professor_fk")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model frequencia_aluno {
+  id_freq_aluno                                         Int         @id @default(autoincrement())
+  aluno                                                 Int
+  dias_semana                                           Int
+  sala                                                  Int?
+  horario                                               Int?
+  modalidade_freq                                       Int?
+  sede_freq                                             Int
+  usuario_cadastro                                      String?     @db.VarChar(200)
+  data_cadastro                                         DateTime?   @db.Date
+  aluno_frequencia_aluno_alunoToaluno                   aluno       @relation("frequencia_aluno_alunoToaluno", fields: [aluno], references: [id_aluno], onDelete: NoAction, onUpdate: NoAction, map: "fk_aluno")
+  dias_semana_frequencia_aluno_dias_semanaTodias_semana dias_semana @relation("frequencia_aluno_dias_semanaTodias_semana", fields: [dias_semana], references: [id_dias_semana], onDelete: NoAction, onUpdate: NoAction, map: "fk_dias_semana")
+
+  @@index([aluno], map: "fk_aluno_idx")
+  @@index([dias_semana], map: "fk_dias_semana_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model grupo_professor {
+  id_grupo_prof Int    @id @default(autoincrement())
+  desc_grupo    String @db.VarChar(45)
+  sede_grupo    Int
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model horarios {
+  id_horarios   Int    @id @default(autoincrement())
+  desc_horario  String @db.VarChar(20)
+  sede_horarios Int
+}
+
+model modalidade {
+  id_modalidade                      Int           @id @default(autoincrement())
+  tipo                               String?       @db.VarChar(30)
+  valor_professor                    Decimal?      @db.Decimal(10, 2)
+  valor_responsavel                  Decimal?      @db.Decimal(10, 2)
+  aluno_aluno_modalidadeTomodalidade aluno[]       @relation("aluno_modalidadeTomodalidade")
+  aula_aula_modalidadeTomodalidade   aula[]        @relation("aula_modalidadeTomodalidade")
+  responsavel                        responsavel[]
+}
+
+model notas_alunos {
+  id_notas_alunos                                   Int         @id @default(autoincrement())
+  aluno                                             Int
+  responsavel                                       Int
+  disciplina                                        Int
+  nota_1                                            Decimal?    @db.Decimal(4, 2)
+  nota_2                                            Decimal?    @db.Decimal(4, 2)
+  nota_3                                            Decimal?    @db.Decimal(4, 2)
+  nota_4                                            Decimal?    @db.Decimal(4, 2)
+  ano                                               Int?        @db.Year
+  data_cadastro                                     DateTime?   @db.Date
+  usuario_cadastro                                  String?     @db.VarChar(11)
+  data_alteracao                                    DateTime?   @db.Date
+  usuario_alteracao                                 String?     @db.VarChar(11)
+  serie_ano                                         Int?
+  colegio_aluno                                     String?     @db.VarChar(45)
+  sede_nota_aluno                                   Int?
+  aluno_notas_alunos_alunoToaluno                   aluno       @relation("notas_alunos_alunoToaluno", fields: [aluno], references: [id_aluno], onDelete: NoAction, onUpdate: NoAction, map: "fk_aluno_2")
+  disiciplina                                       disiciplina @relation(fields: [disciplina], references: [id_disiciplina], onDelete: NoAction, onUpdate: NoAction, map: "fk_disciplina_2")
+  responsavel_notas_alunos_responsavelToresponsavel responsavel @relation("notas_alunos_responsavelToresponsavel", fields: [responsavel], references: [id_responsavel], onDelete: NoAction, onUpdate: NoAction, map: "fk_responsavel")
+
+  @@index([aluno], map: "fk_aluno_idx")
+  @@index([disciplina], map: "fk_disciplina_idx")
+  @@index([responsavel], map: "fk_responsavel_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model professor {
+  id_professor                                         Int               @id @default(autoincrement())
+  nome_professor                                       String            @db.VarChar(45)
+  cpf                                                  String            @db.VarChar(11)
+  logradouro                                           String            @db.VarChar(50)
+  pix                                                  String?           @db.VarChar(30)
+  usuario_cadastro                                     String            @db.VarChar(200)
+  data_cadastro                                        DateTime          @db.Date
+  bairro                                               String?           @db.VarChar(50)
+  cidade                                               String?           @db.VarChar(30)
+  uf                                                   String?           @db.VarChar(2)
+  numero                                               String?           @db.VarChar(20)
+  cep                                                  String?           @db.VarChar(8)
+  grupo                                                Int?
+  ativo                                                Int?
+  sede_professor                                       Int
+  aula_professor_aula_professor_professorToprofessor   aula_professor[]  @relation("aula_professor_professorToprofessor")
+  disponibilidade_disponibilidade_professorToprofessor disponibilidade[] @relation("disponibilidade_professorToprofessor")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model responsavel {
+  id_responsavel                                     Int            @id @default(autoincrement())
+  nome_resposavel                                    String         @db.VarChar(60)
+  logradouro                                         String         @db.VarChar(50)
+  cpf                                                String         @db.VarChar(11)
+  telefone                                           String?        @db.VarChar(14)
+  email                                              String?        @db.VarChar(200)
+  usuario_cadastro                                   String?        @db.VarChar(200)
+  data_cadastro                                      DateTime?      @db.Date
+  bairro                                             String?        @db.VarChar(50)
+  cidade                                             String?        @db.VarChar(50)
+  numero                                             String?        @db.VarChar(20)
+  uf                                                 String?        @db.VarChar(2)
+  cep                                                String?        @db.VarChar(8)
+  pacote_h_a_                                        Decimal?       @map("pacote(h/a)") @db.Decimal(10, 1)
+  valor_hora_aula                                    Decimal        @db.Decimal(10, 2)
+  modalidade_resp                                    Int?
+  sede_responsavel                                   Int
+  aluno_aluno_responsavelToresponsavel               aluno[]        @relation("aluno_responsavelToresponsavel")
+  notas_alunos_notas_alunos_responsavelToresponsavel notas_alunos[] @relation("notas_alunos_responsavelToresponsavel")
+  modalidade                                         modalidade?    @relation(fields: [modalidade_resp], references: [id_modalidade], onDelete: NoAction, onUpdate: NoAction, map: "fk_modalidade_resp")
+
+  @@index([modalidade_resp], map: "fk_modalidade_resp_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model salas {
+  id_salas         Int       @id @default(autoincrement())
+  desc_sala        String    @db.VarChar(45)
+  usuario_cadastro String?   @db.VarChar(200)
+  data_cadastro    DateTime? @db.Date
+  qtd_alunos       Int?
+  sede_sala        Int
+}
+
+model sc_log {
+  id            Int       @id @default(autoincrement())
+  inserted_date DateTime? @db.DateTime(0)
+  username      String    @db.VarChar(90)
+  application   String    @db.VarChar(200)
+  creator       String    @db.VarChar(30)
+  ip_user       String    @db.VarChar(32)
+  action        String    @db.VarChar(30)
+  description   String?   @db.Text
+}
+
+model sec_apps {
+  app_name        String            @id @db.VarChar(128)
+  app_type        String?           @db.VarChar(255)
+  description     String?           @db.VarChar(255)
+  sec_groups_apps sec_groups_apps[]
+}
+
+model sec_groups {
+  group_id         Int                @id @default(autoincrement())
+  description      String?            @unique(map: "description") @db.VarChar(255)
+  sec_groups_apps  sec_groups_apps[]
+  sec_users_groups sec_users_groups[]
+}
+
+model sec_groups_apps {
+  group_id    Int
+  app_name    String     @db.VarChar(128)
+  priv_access String?    @db.VarChar(1)
+  priv_insert String?    @db.VarChar(1)
+  priv_delete String?    @db.VarChar(1)
+  priv_update String?    @db.VarChar(1)
+  priv_export String?    @db.VarChar(1)
+  priv_print  String?    @db.VarChar(1)
+  sec_groups  sec_groups @relation(fields: [group_id], references: [group_id], onDelete: Cascade, onUpdate: NoAction, map: "sec_groups_apps_ibfk_1")
+  sec_apps    sec_apps   @relation(fields: [app_name], references: [app_name], onDelete: Cascade, onUpdate: NoAction, map: "sec_groups_apps_ibfk_2")
+
+  @@id([group_id, app_name])
+  @@index([app_name], map: "sec_groups_apps_ibfk_2")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sec_users {
+  login            String             @id @db.VarChar(255)
+  pswd             String             @db.VarChar(255)
+  name             String?            @db.VarChar(64)
+  email            String?            @db.VarChar(255)
+  active           String?            @db.VarChar(1)
+  activation_code  String?            @db.VarChar(32)
+  priv_admin       String?            @db.VarChar(1)
+  sede_user        Int?
+  sec_users_groups sec_users_groups[]
+}
+
+model sec_users_groups {
+  login      String     @db.VarChar(255)
+  group_id   Int
+  sec_users  sec_users  @relation(fields: [login], references: [login], onDelete: Cascade, onUpdate: NoAction, map: "sec_users_groups_ibfk_1")
+  sec_groups sec_groups @relation(fields: [group_id], references: [group_id], onDelete: Cascade, onUpdate: NoAction, map: "sec_users_groups_ibfk_2")
+
+  @@id([login, group_id])
+  @@index([group_id], map: "sec_users_groups_ibfk_2")
+}
+
+model sede_reforco {
+  id_sede_reforco   Int       @id @default(autoincrement())
+  nome_sede_reforco String    @db.VarChar(45)
+  data_cadastro     DateTime  @db.Date
+  usuario_cadastro  String    @db.VarChar(45)
+  data_alteracao    DateTime? @db.Date
+  usuario_alteracao String?   @db.VarChar(45)
+}
+
+model tipificacao {
+  id_tipificaco Int    @id @default(autoincrement())
+  tipo          String @db.VarChar(45)
+  descricao     String @db.VarChar(145)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model turmas {
+  id_turmas   Int    @id @default(autoincrement())
+  desc_turma  String @db.VarChar(1)
+  hora_inicio String @db.VarChar(5)
+  hora_fim    String @db.VarChar(5)
 }
