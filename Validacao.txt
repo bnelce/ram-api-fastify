@@ -1,0 +1,15 @@
+1.[X] AO ABRIR O SITE DO SAP O USUÁRIO ADM JÁ ESTÁ PREENCHIDO PARA LOGAR
+2.[/] ENVIO DO E-MAIL COM SENHA VINDO DO E-MAIL DO ABNER.
+3.[/] USUÁRIO ADMIN NÃO EXCLUI USUÁRIOS E NEM ALTERA O E-MAIL.
+    - [X] Deve alterar o email de um usuário de sua organização
+    - [ ] Deve deve excluir um usuário de sua organização
+            - Se excluir, como deve ser o processo das dependências?
+4.[ ] NÃO ESTÁ EXCLUINDO AS OPERAÇÕES.
+5.[ ] ESTATÍSTICAS DE SUPERVISOR SEM OPERADOR FICA EM BRANCO.
+6.[ ] ERRO AO CADASTRAR VENDA NO USUÁRIO SUPERVISOR.
+7.[ ] USUÁRIO ADMINISTRADOR DE PARCEIRO TEM VISÃO GERAL IGUAL O ADMIN MASTER.
+8.[X] AO INATIVAR MEMBRO NÃO ALTERA STATUS.
+    -[X] para inativar um usuário o adminstrador deve incluir a data de desligamento
+    -[X] é necessário inserir uma label com o status do usuário abaixo do Email: do cabeçalho do form
+    -[X] o campo status deve ser readonly e quando for inserida uma data de desligamento deve ser preenchido como Inativo e vice-versa
+    -[X] a data de desligamento não pode ser maior que a data de admissão
